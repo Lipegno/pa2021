@@ -7,16 +7,6 @@ import java.beans.PropertyChangeListener;
 
 public class Main{
 
-    private static class ImageChangeMaster implements PropertyChangeListener {
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            if(evt.getPropertyName().equals("new_image")){
-                System.out.println("TENHO UMA IMAGEM PRONTA DO WORKER");
-            }
-        }
-    }
-
-
     public static void main(String[] args) {
         JFrame frame = new JFrame("PATP2");
         JPanel panel =  new JPanel();
