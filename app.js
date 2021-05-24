@@ -66,9 +66,44 @@ function initWebGL(){
         //x, y,      r, g, b
         0.0, -0.5,   1.0,0.0,0.0,         // CPU
         -0.5, 0.5,   0.0,1.0,0.0,
-        0.5,0.5,      0.0,0.0,1.0
+        0.5,0.5,      1.0,0.0,1.0,
+
+
+        -0.8,0.8,   1.0,0,0,  // new point
+        -0.6,0.6,    0,1.0,0,
+        -0.4,0.8,   0,0,1.0,
+
+        0.8,-0.8,   1.0,0,0,  // new point
+        0.6,-0.6,    0,1.0,0,
+        0.4,-0.8,   0,0,1.0,
+
+        0,0, 1.0,1.0,1.0,  // new point
+        -0.2,-0.2, 1.0,1.0,1.0,
+        0.2,-0.2, 1.0,1.0,1.0
 
     ];
+
+    var triangleVerticesDuplicate  = Object.assign({},triangleVertices);
+    /*[  // right here our vertices only exist in the
+        //x, y,      r, g, b
+        0.0, -0.5,   1.0,0.0,0.0,         // CPU
+        -0.5, 0.5,   0.0,1.0,0.0,
+        0.5,0.5,      1.0,0.0,1.0,
+
+
+        -0.8,0.8,   0.0,1,0,  // new point
+        -0.6,0.6,    0,1.0,0,
+        -0.4,0.8,   1,0,0,
+
+        0.8,-0.8,   0,1.0,0,  // new point
+        0.6,-0.6,    0,1.0,0,
+        0.4,-0.8,   0,1.0,0,
+
+        0,0, 0.5,0.5,0.5,  // new point
+        -0.2,-0.2, 0.5,0.5,0.5,
+        0.2,-0.2, 0.5,0.5,0.5
+
+    ];*/
 
     var verticesBuffer = gl.createBuffer(); // creates the buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer); // binds the buffer to the GL context
@@ -99,14 +134,58 @@ function initWebGL(){
 
     gl.useProgram(program);
 
-    //Main loop?
-   /* var r=0;
-    var g=0;
-    var b=0;
-    while(true){
+    var s_x = 1;
+    var s_y = 1;
+    var s_r = 1;
+    var s_g = 1;
+    var s_b = 1;
+    var i=0;
+    function loop(){
+       // console.log("teste");
+        for(i=0;i<triangleVertices.length;i=i+5){
+            triangleVertices[i]= triangleVertices[i]*s_x;     //x
+            triangleVertices[i+1]=  triangleVertices[i+1]*s_y;   //y
+            triangleVertices[i+2]=  triangleVertices[i+2]*s_r;    //r
+            triangleVertices[i+3]= triangleVertices[i+3]*s_g;    //g
+            triangleVertices[i+4]= triangleVertices[i+4]*s_b;   //b
+            
+        }
+        s_x = s_x+0.001;
+        s_y = s_y+0.001;
+        s_r = s_r+0.001;
+        s_g = s_g+0.001;
+        s_b = s_b+0.001;
+        if(s_x>1.1){
+            s_x = 1;
+            s_y = 1;
+            s_r = 1;
+            s_g = 1;
+            s_b = 1;
 
-    }*/
+            for(i=0;i<triangleVertices.length;i=i+5){
+                triangleVertices[i]= triangleVerticesDuplicate[i];     //x
+                triangleVertices[i+1]=  triangleVerticesDuplicate[i+1];
+                triangleVertices[i+2]= triangleVerticesDuplicate[i+2];    //r
+                triangleVertices[i+3]= triangleVerticesDuplicate[i+3];    //g
+                triangleVertices[i+4]= triangleVerticesDuplicate[i+4];   //b
+                
+            }
 
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+            //console.log("aqui");
+        }
+
+        gl.clearColor(0.8, 0.8, 0.8, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW); // set up the buffer to receive our vertices
+        gl.drawArrays(gl.TRIANGLES, 0, triangleVertices.length/5);
+
+        requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
 
 }
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
