@@ -2,12 +2,16 @@ const vertexShaderText =
 `
 precision mediump float;
 
-attribute vec2 vertPosition;
+attribute vec3 vertPosition;
 attribute vec3 vertColor;
 varying vec3 fragColor;
 
+uniform mat4 _world;
+uniform mat4 _view;
+uniform mat4 _proj;
+
 void main(){
-   gl_Position = vec4(vertPosition,0.0,1.0);
+   gl_Position = _proj * _view * _world * vec4(vertPosition,1.0);
    fragColor = vertColor;
 }`;
 
@@ -52,25 +56,82 @@ function initTutorial(){
     gl.validateProgram(program);
 
     //create buffer
-    var trianglevertices = [
-        0.0,0.5,    1.0,0.0,0.0,
-        -0.5,-0.5, 0.0,1.0,0.0,
-        0.5,-0.5, 0.0,0.0,1.0
-    ]; 
+    var cubeVertices = 
+    [ // X, Y, Z           R, G, B
+        // Top
+        -1.0, 1.0, -1.0,   0.5, 0.5, 0.5,
+        -1.0, 1.0, 1.0,    0.5, 0.5, 0.5,
+        1.0, 1.0, 1.0,     0.5, 0.5, 0.5,
+        1.0, 1.0, -1.0,    0.5, 0.5, 0.5,
 
-    var triangleVertexBufferObject = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
-    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(trianglevertices) ,gl.STATIC_DRAW);
+        // Left
+        -1.0, 1.0, 1.0,    0.75, 0.25, 0.5,
+        -1.0, -1.0, 1.0,   0.75, 0.25, 0.5,
+        -1.0, -1.0, -1.0,  0.75, 0.25, 0.5,
+        -1.0, 1.0, -1.0,   0.75, 0.25, 0.5,
+
+        // Right
+        1.0, 1.0, 1.0,    0.25, 0.25, 0.75,
+        1.0, -1.0, 1.0,   0.25, 0.25, 0.75,
+        1.0, -1.0, -1.0,  0.25, 0.25, 0.75,
+        1.0, 1.0, -1.0,   0.25, 0.25, 0.75,
+
+        // Front
+        1.0, 1.0, 1.0,    1.0, 0.0, 0.15,
+        1.0, -1.0, 1.0,    1.0, 0.0, 0.15,
+        -1.0, -1.0, 1.0,    1.0, 0.0, 0.15,
+        -1.0, 1.0, 1.0,    1.0, 0.0, 0.15,
+
+        // Back
+        1.0, 1.0, -1.0,    0.0, 1.0, 0.15,
+        1.0, -1.0, -1.0,    0.0, 1.0, 0.15,
+        -1.0, -1.0, -1.0,    0.0, 1.0, 0.15,
+        -1.0, 1.0, -1.0,    0.0, 1.0, 0.15,
+
+        // Bottom
+        -1.0, -1.0, -1.0,   0.5, 0.5, 1.0,
+        -1.0, -1.0, 1.0,    0.5, 0.5, 1.0,
+        1.0, -1.0, 1.0,     0.5, 0.5, 1.0,
+        1.0, -1.0, -1.0,    0.5, 0.5, 1.0,
+    ];
+
+    var cubeIndex = [
+        0,1,2,
+        0,2,3,
+
+        5,4,6,
+        6,4,7,
+
+        8,9,10,
+        8,10,11,
+
+        13,12,14,
+        15,14,12,
+
+        16,17,18,
+        16,18,19,
+
+        22,20,23,
+        21,20,22
+    ];
+
+    var cubeVertexBufferObject = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexBufferObject);
+    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(cubeVertices) ,gl.STATIC_DRAW);
+
+    var cubeIndexBufferObject = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeIndex);
+    gl.bufferData(gl.ARRAY_BUFFER,new Uint16Array(cubeVertices) ,gl.STATIC_DRAW);
 
     var positionAttrLoc =  gl.getAttribLocation(program, 'vertPosition');
     var colorAttrLoc =  gl.getAttribLocation(program, 'vertColor');
 
     gl.vertexAttribPointer(
         positionAttrLoc,
-        2,
+        3,
         gl.FLOAT,
         gl.FALSE,
-        5*Float32Array.BYTES_PER_ELEMENT,
+        6*Float32Array.BYTES_PER_ELEMENT,
         0
     );
 
@@ -79,8 +140,8 @@ function initTutorial(){
         3,
         gl.FLOAT,
         gl.FALSE,
-        5*Float32Array.BYTES_PER_ELEMENT,
-        2* Float32Array.BYTES_PER_ELEMENT
+        6*Float32Array.BYTES_PER_ELEMENT,
+        3* Float32Array.BYTES_PER_ELEMENT
     );
 
     gl.enableVertexAttribArray(positionAttrLoc);
