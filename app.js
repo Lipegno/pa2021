@@ -1,38 +1,23 @@
 //https://open.gl/textures
 
-const vertexShaderText = 
-`
-precision mediump float;
-
-attribute vec3 vertPosition;
-attribute vec3 vertColor;
-varying vec3 fragColor;
-
-uniform mat4 _world;
-uniform mat4 _view;
-uniform mat4 _proj;
-uniform mat4 _trans;
-
-vec4 _position;
-
-void main(){
-   _position =  _view * _world * vec4(vertPosition,1.0);
-   gl_Position = _proj * _trans * _position;
-   fragColor = vertColor;
-}`;
-
-
-const fragmentShaderText = `
-    precision mediump float;
-    varying vec3 fragColor;
-    void main(){
-       gl_FragColor = vec4(fragColor,1.0);
-    }`;
 
 var directions = new Float32Array(3);    
 
 
-function initTutorial(){
+function loadResources(){
+    console.log("Loading resources ....");
+    loadTextResource("vertexShader.glsl",function(vertexShaderText){
+        loadTextResource("fragmentShader.glsl",function(fragmentShaderText){
+            loadJSONResource("novo.json", function(modelo){
+                loadImage("ball.png",function(texture){
+                    initAnimation(vertexShaderText, fragmentShaderText,modelo,texture);
+                });
+            });
+        });
+    })
+}
+
+function initAnimation(vertexShaderText,fragmentShaderText,model,tex){
     console.log("Loaded! !");
     var canvas =  document.getElementById("work_surface");
     var gl = canvas.getContext('webgl'); 
@@ -71,43 +56,43 @@ function initTutorial(){
     gl.useProgram(program);
 
     var cubeVertices = 
-    [ // X, Y, Z           R, G, B
-        // Top
-        -1.0, 1.0, -1.0,   0.5, 0.5, 0.5,
-        -1.0, 1.0, 1.0,    0.5, 0.5, 0.5,
-        1.0, 1.0, 1.0,     0.5, 0.5, 0.5,
-        1.0, 1.0, -1.0,    0.5, 0.5, 0.5,
+	[ // X, Y, Z           U, V
+		// Top
+		-1.0, 1.0, -1.0,   0, 0,
+		-1.0, 1.0, 1.0,    0, 1,
+		1.0, 1.0, 1.0,     1, 1,
+		1.0, 1.0, -1.0,    1, 0,
 
-        // Left
-        -1.0, 1.0, 1.0,    0.75, 0.25, 0.5,
-        -1.0, -1.0, 1.0,   0.75, 0.25, 0.5,
-        -1.0, -1.0, -1.0,  0.75, 0.25, 0.5,
-        -1.0, 1.0, -1.0,   0.75, 0.25, 0.5,
+		// Left
+		-1.0, 1.0, 1.0,    0, 0,
+		-1.0, -1.0, 1.0,   1, 0,
+		-1.0, -1.0, -1.0,  1, 1,
+		-1.0, 1.0, -1.0,   0, 1,
 
-        // Right
-        1.0, 1.0, 1.0,    0.25, 0.25, 0.75,
-        1.0, -1.0, 1.0,   0.25, 0.25, 0.75,
-        1.0, -1.0, -1.0,  0.25, 0.25, 0.75,
-        1.0, 1.0, -1.0,   0.25, 0.25, 0.75,
+		// Right
+		1.0, 1.0, 1.0,    1, 1,
+		1.0, -1.0, 1.0,   0, 1,
+		1.0, -1.0, -1.0,  0, 0,
+		1.0, 1.0, -1.0,   1, 0,
 
-        // Front
-        1.0, 1.0, 1.0,    1.0, 0.0, 0.15,
-        1.0, -1.0, 1.0,    1.0, 0.0, 0.15,
-        -1.0, -1.0, 1.0,    1.0, 0.0, 0.15,
-        -1.0, 1.0, 1.0,    1.0, 0.0, 0.15,
+		// Front
+		1.0, 1.0, 1.0,    1, 1,
+		1.0, -1.0, 1.0,    1, 0,
+		-1.0, -1.0, 1.0,    0, 0,
+		-1.0, 1.0, 1.0,    0, 1,
 
-        // Back
-        1.0, 1.0, -1.0,    0.0, 1.0, 0.15,
-        1.0, -1.0, -1.0,    0.0, 1.0, 0.15,
-        -1.0, -1.0, -1.0,    0.0, 1.0, 0.15,
-        -1.0, 1.0, -1.0,    0.0, 1.0, 0.15,
+		// Back
+		1.0, 1.0, -1.0,    0, 0,
+		1.0, -1.0, -1.0,    0, 1,
+		-1.0, -1.0, -1.0,    1, 1,
+		-1.0, 1.0, -1.0,    1, 0,
 
-        // Bottom
-        -1.0, -1.0, -1.0,   0.5, 0.5, 1.0,
-        -1.0, -1.0, 1.0,    0.5, 0.5, 1.0,
-        1.0, -1.0, 1.0,     0.5, 0.5, 1.0,
-        1.0, -1.0, -1.0,    0.5, 0.5, 1.0,
-    ];
+		// Bottom
+		-1.0, -1.0, -1.0,   1, 1,
+		-1.0, -1.0, 1.0,    1, 0,
+		1.0, -1.0, 1.0,     0, 0,
+		1.0, -1.0, -1.0,    0, 1,
+	];
 
     var cubeIndex = [
         0,1,2,
@@ -138,7 +123,7 @@ function initTutorial(){
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(cubeIndex) ,gl.STATIC_DRAW);
 
     var positionAttrLoc =  gl.getAttribLocation(program, 'vertPosition');
-    var colorAttrLoc =  gl.getAttribLocation(program, 'vertColor');
+    var texAttrLoc =  gl.getAttribLocation(program, 'vertTexCoord');
     var worldMatUniformLocation = gl.getUniformLocation(program, '_world');
     var projMatUniformLocation = gl.getUniformLocation(program, '_proj');
     var viewMatUniformLocation = gl.getUniformLocation(program, '_view');
@@ -171,22 +156,30 @@ function initTutorial(){
         3,
         gl.FLOAT,
         gl.FALSE,
-        6*Float32Array.BYTES_PER_ELEMENT,
+        5*Float32Array.BYTES_PER_ELEMENT,
         0
     );
 
     gl.vertexAttribPointer(
-        colorAttrLoc,
-        3,
+        texAttrLoc,
+        2,
         gl.FLOAT,
         gl.FALSE,
-        6*Float32Array.BYTES_PER_ELEMENT,
+        5*Float32Array.BYTES_PER_ELEMENT,
         3* Float32Array.BYTES_PER_ELEMENT
     );
 
     var angle = 0;
     gl.enableVertexAttribArray(positionAttrLoc);
-    gl.enableVertexAttribArray(colorAttrLoc);
+    gl.enableVertexAttribArray(texAttrLoc);
+    var texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); // dizer como é que a texture
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE); // será mapeada na geometria
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER, gl.LINEAR); 
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,document.getElementById("tex"));
+
     gl.useProgram(program);
 
     var x_rotation_matrix = new Float32Array(16);

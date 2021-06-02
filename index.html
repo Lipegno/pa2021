@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web GL PA aula 1</title>
 </head>
-<body onload="initTutorial();">
+<body onload="loadResources();">
     <canvas id="work_surface" width="800" height="600">
         your browser does not support html 5
     </canvas><br>
     <i>content above this</i>
+    <script src="utils.js"></script>
     <script src="app.js"> </script>
     <script src="gl-matrix.js"></script>
-
     <fieldset>
         <button id="up" onclick="handleTransClick(event)">UP</button>
         <button id="down" onclick="handleTransClick(event)">DOWN</button>
@@ -22,5 +22,7 @@
         <button id="in" onclick="handleTransClick(event)">INWARD</button>
         <button id="out" onclick="handleTransClick(event)">OUTWARD</button>
     </fieldset>
+    <img src="RTS_Crate.png" id="tex" width="0" height="0"></img>
+    
 </body>
 </html>
