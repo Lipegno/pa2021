@@ -40,7 +40,7 @@ public class Main {
             String image_url =imageT.getAnswer();
 
 
-            EditContent edt2 = new EditContent("<img src="+image_url+"></img>",striped_content,0);
+            EditContent edt2 = new EditContent("<img src=\""+image_url+"\"></img>",striped_content,0);
             edt2.start();
             edt2.join();
             striped_content = edt2.getFile();
@@ -49,9 +49,7 @@ public class Main {
             svt.start();
             svt.run();
             svt.join();
-
-        //striped_content = addContentEnd("<img src="+image_url+"></img>",striped_content);
-            // saveFile("ficheiroTontoTeste.html",striped_content);
+            
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
